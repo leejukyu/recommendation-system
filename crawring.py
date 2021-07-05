@@ -14,8 +14,8 @@ def get_movie_link(url):
             print(target_url)
     return movie_links_list
 
-url = 'http://movie.naver.com/movie/point/af/list.nhn'
-movie_links = get_movie_link(url)
+# url = 'http://movie.naver.com/movie/point/af/list.nhn'
+# movie_links = get_movie_link(url)
 # print(movie_links)
 
 res = requests.get('https://movie.naver.com/movie/point/af/list.nhn?st=mcode&sword=189050&target=after')
@@ -32,8 +32,8 @@ def genre_link(url):
             genre_list.append(genre.a.get_text())
     return genre_list
 
-url = 'http://movie.naver.com/movie/point/af/list.nhn'
-genre_link_data = genre_link(url)
+# url = 'http://movie.naver.com/movie/point/af/list.nhn'
+# genre_link_data = genre_link(url)
 # print(genre_link_data)
 
 def get_user_list(url):
@@ -55,6 +55,37 @@ def get_user_list(url):
 
     return page_link_list
 
-url = 'http://movie.naver.com/movie/point/af/list.nhn?st=mcode&sword=187322&target=after'
-point_data = get_user_list(url)
-print(point_data)
+# url = 'http://movie.naver.com/movie/point/af/list.nhn?st=mcode&sword=187322&target=after'
+# point_data = get_user_list(url)
+# print(point_data)
+
+def do_crawl(url):
+    url_list = get_user_list(url)
+
+    if len(url_list) >= 2:
+        for url in url_list:
+            genre_list = genre_list(url)
+
+            res = requests.get(url)
+            content = res.text
+            soup = BeautifulSoup(content, 'thml5lib')
+
+            user_id = soup.find_all('a', class_='author')
+            title = soup.find_all('td', class_='title')
+            score = soup.find_all('td', class_='point')
+
+            user_id_list = []
+            for user_id in user_id:
+                replaced_user_id = re.sub(r'[*]', user_id.get_text())
+                user_id_list.append(replaced_user_id)
+
+            title_list=[]
+            for title in title:
+                title_list.append(title.a.get_text())
+
+            score_list=[]
+            for score in score:
+                score_list.append(score.a.get_text())
+
+
+            print(user_id_list, title_list, score_list)
